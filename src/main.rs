@@ -101,6 +101,22 @@ async fn follows_from_root() {
     wait_a_bit().await;
 }
 
+use tracing::Instrument;
+#[tracing::instrument]
+async fn instrument_parent() {
+    wait_a_bit().await;
+
+    #[tracing::instrument]
+    async fn child_func() {
+        wait_a_bit().await;
+    }
+
+    let jh = tokio::task::spawn(child_func().instrument(tracing::Span::current()));
+
+    let _ = jh.await;
+    wait_a_bit().await;
+}
+
 #[tokio::main]
 async fn main() {
     setup::configure();
@@ -112,6 +128,8 @@ async fn main() {
     tokio::join!(follows_from_overlaps(), follows_from_before());
     wait_a_bit().await;
     follows_from_root().await;
+    wait_a_bit().await;
+    instrument_parent().await;
 
     drop(guard);
 
