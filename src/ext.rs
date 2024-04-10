@@ -1,3 +1,5 @@
+//! Based on <https://github.com/MaterializeInc/materialize/blob/main/src/ore/src/tracing.rs>,
+//! which is permissively licensed.
 #![allow(unused)]
 use std::collections::BTreeMap;
 
