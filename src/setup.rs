@@ -13,7 +13,7 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::util::SubscriberInitExt;
 
-pub fn configure() {
+pub fn configure(fmt_debug: bool, otel_debug: bool) {
     // fmt
     let fmt_layer = fmt::layer().with_writer(io::stderr).with_ansi(true);
 
@@ -58,7 +58,15 @@ pub fn configure() {
     let otel_layer = tracing_opentelemetry::layer().with_tracer(tracer);
 
     let stack = tracing_subscriber::registry();
-    let stack = stack.with(fmt_layer.with_filter(LevelFilter::INFO));
-    let stack = stack.with(otel_layer.with_filter(LevelFilter::INFO));
+    let stack = stack.with(fmt_layer.with_filter(if fmt_debug {
+        LevelFilter::DEBUG
+    } else {
+        LevelFilter::INFO
+    }));
+    let stack = stack.with(otel_layer.with_filter(if otel_debug {
+        LevelFilter::DEBUG
+    } else {
+        LevelFilter::INFO
+    }));
     stack.init();
 }
